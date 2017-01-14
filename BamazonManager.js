@@ -26,7 +26,10 @@ var newItem =function(){
     		StockQuantity:InStock
 			}, function(err, res) {});
 	}
-
+var updateInv= function(){
+	connection.query("UPDATE Products SET StockQuantity = ? WHERE ItemID = ?",[InStock,chosenID],function(err, res) {});
+	console.log("Inventory has been upaded");
+}
 
 var directions= function(){
 	inquirer.prompt({
@@ -43,6 +46,8 @@ var directions= function(){
     				console.log("ItemID: "+res[i].ItemID,"ProductName: "+res[i].ProductName,"Price: $"+res[i].Price, "#InStock: "+res[i].StockQuantity);
     			};  
 			})
+		//runs directions again
+		directions();
 		} else if (answers.menu ==='View Low Inventory') {
 			//list out all products with an invetory count lower than 5
 			connection.query('SELECT ItemID, ProductName, Price, StockQuantity FROM Products', function(err, res) {
@@ -53,11 +58,42 @@ var directions= function(){
     				}
     			};  
 			})
-
-
-
+		//runs directions again
+		directions();
 		} else if (answers.menu ==='Add to Inventory') {
-			console.log('more');
+			inquirer.prompt({
+		    	type: 'list',
+		    	name: 'id',
+		    	message: 'Select the ItemID you would like to add invetory to?',
+		    	choices:['25','26','27','28','29','30','31','32','33','34']
+		    //the answer containing the selected ID is passed into another function 
+		  	}).then(function(answer) {
+		  		//the answer it stored into a variable
+		        chosenID=answer.id;
+		        //console.log('Chosen ID#', chosenID);
+		        inquirer.prompt({
+							type:'input',
+							name:'newStock',
+							message:'What is the new InStock#?',
+							validate: function (value) {
+      							if (value>0) {
+        							return true;
+      							}
+      							//if the number enter isn't above 0 the user is asked to pick a valid number
+      							return 'Please enter a valid number';
+    						}
+								    //the answer containing the name of the department is passed into another function
+						}).then(function(answer) {
+							//the answer it stored into a variable  
+							InStock=answer.newStock;
+							//console.log('#InStock:', InStock);		
+					       	//Runs function to update Inventory
+					       	updateInv();
+							//runs directions again
+							directions();
+						})
+		     	
+		    })
 		}else if (answers.menu ==='Add New Products') {
 			//Prompt Mananger to enter in Product Name
 			inquirer.prompt({
@@ -114,6 +150,8 @@ var directions= function(){
 							// console.log('#InStock:', InStock);
 							//Runs function that update mysql
 							newItem();
+							//runs directions again
+							directions();
 						})
 					})
 		    	})
