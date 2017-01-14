@@ -28,7 +28,7 @@ var newItem =function(){
 	}
 var updateInv= function(){
 	connection.query("UPDATE Products SET StockQuantity = ? WHERE ItemID = ?",[InStock,chosenID],function(err, res) {});
-	console.log("Inventory has been upaded");
+	console.log("Inventory has been updated");
 }
 
 var directions= function(){

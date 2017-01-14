@@ -10,7 +10,6 @@ var connection = mysql.createConnection({
     password: "", //Your password
     database: "Bamazon"
 })
-var Products=[]
 //Successful connection is shown through console log
 connection.connect(function(err) {
 	if (err) throw err;
@@ -22,8 +21,6 @@ connection.connect(function(err) {
 connection.query('SELECT ItemID, ProductName, Price, StockQuantity FROM Products', function(err, res) {
     if (err) throw err;
     for (var i = 0; i < res.length; i++) {
-    //	Products.push(res[i].ItemID,res[i].ProductName,res[i].Price, res[i].StockQuantity);
-    Products.push(res[i]);
     //console logs results
     console.log("ItemID: "+res[i].ItemID,"ProductName: "+res[i].ProductName,"Price: $"+res[i].Price, "#InStock: "+res[i].StockQuantity);
     };
@@ -77,35 +74,46 @@ var secondQuestion=function(chosenID) {
       })
 }
 
-/*if (25== answer2) {
-connection.query("UPDATE INTO Products SET ?", {
-    StockQuantity: itemName
-}, function(err, res) {});
-
-}
-*/
 
 var checkInStock= function(chosenID, chosenAmount){
 	//console to check variables passed through successfully
-	console.log(chosenID,chosenAmount);
-console.log(Products);
-	//connection.query('UPDATE Products SET StockQuantity="1" WHERE ItemID="28', function(err, res) {
-		for (var i = 0; i < Products.length; i++) {
-			if (res[i].ItemID==chosenID) {
-				if (res[i].StockQuantity >= chosenAmount) {
-					console.log("yeah");
-				}else{
-					console.log("We don't have that amount in Stock");
-				}
-			}
-		}
-//	}
+	//console.log(chosenID,chosenAmount);
+    connection.query('SELECT ItemID, ProductName, Price, StockQuantity FROM Products', function(err, res) {
+        if (err) throw err;
+            for (var i = 0; i < res.length; i++) {
+                if (res[i].ItemID==chosenID) {
+                    if (res[i].StockQuantity >= chosenAmount) {
+                        console.log("We have enough in stock");
+                        //pass on chosenID and chosenAmount to confirmOrder Function
+                        confirmOrder(chosenID,chosenAmount);
+                     }else{
+                    console.log("We don't have that amount in Stock");
+                    console.log("Pick a new amount")
+                    //Pass on only chosenID because the customer needs to pick a new amount
+                    secondQuestion(chosenID);
+                    }
+                }
+            }; 
+        })
+}
+var confirmOrder = function(chosenID,chosenAmount){
+    connection.query('SELECT ItemID, ProductName, Price, StockQuantity FROM Products', function(err, res) {
+        if (err) throw err;
+            for (var i = 0; i < res.length; i++) {
+                if (res[i].ItemID==chosenID) {
+                    //created variable to hold value of new instock#
+                    var newStock= res[i].StockQuantity - chosenAmount;
+                    connection.query("UPDATE Products SET StockQuantity = ? WHERE ItemID = ?",[newStock,chosenID],function(err, res) {});
+                    //created variable to hold total price value
+                    var totalPrice = chosenAmount*res[i].Price;
+                    console.log("You were charged: $"+totalPrice);
+                }
+            }
+        }); 
 }
 
-/*var updateStore= function(){
-	connection.query('SELECT * FROM auctions', function(err, res) {
-		StockQuantity:newQuantity,
-	}
 
-}
-*/
+    
+    
+
+
