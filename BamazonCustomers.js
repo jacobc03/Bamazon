@@ -10,21 +10,27 @@ var connection = mysql.createConnection({
     password: "", //Your password
     database: "Bamazon"
 })
-
+var Products=[]
 //Successful connection is shown through console log
 connection.connect(function(err) {
 	if (err) throw err;
 	console.log("connected as id " + connection.threadId);
 
 })
+
 //shows available  items with their ItemID, the Name of the item and Price of each item 
-connection.query('SELECT ItemID, ProductName, Price FROM Products', function(err, res) {
+connection.query('SELECT ItemID, ProductName, Price, StockQuantity FROM Products', function(err, res) {
     if (err) throw err;
+    for (var i = 0; i < res.length; i++) {
+    //	Products.push(res[i].ItemID,res[i].ProductName,res[i].Price, res[i].StockQuantity);
+    Products.push(res[i]);
     //console logs results
-    console.log(res);
+    console.log("ItemID: "+res[i].ItemID,"ProductName: "+res[i].ProductName,"Price: $"+res[i].Price, "#InStock: "+res[i].StockQuantity);
+    };
     //runs the function that asks the first question
     firstQuestion();
 })
+
 //First question the user will be asked
 var firstQuestion = function(){
 	//prompts user with a list of IDs to pick from
@@ -82,8 +88,17 @@ connection.query("UPDATE INTO Products SET ?", {
 var checkInStock= function(chosenID, chosenAmount){
 	//console to check variables passed through successfully
 	console.log(chosenID,chosenAmount);
+console.log(Products);
 	//connection.query('UPDATE Products SET StockQuantity="1" WHERE ItemID="28', function(err, res) {
-
+		for (var i = 0; i < Products.length; i++) {
+			if (res[i].ItemID==chosenID) {
+				if (res[i].StockQuantity >= chosenAmount) {
+					console.log("yeah");
+				}else{
+					console.log("We don't have that amount in Stock");
+				}
+			}
+		}
 //	}
 }
 
